@@ -14,6 +14,7 @@ import java.sql.CallableStatement;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.sql.CallableStatement;
 
 /**
  *
@@ -109,7 +110,17 @@ public class PhieuMuonForm extends javax.swing.JFrame {
         txtTrangThai = new javax.swing.JTextField();
         btnMuonSach = new javax.swing.JButton();
         btnTraSach = new javax.swing.JButton();
-        btnLamMoi = new javax.swing.JButton();
+        lblMaPhieuMuon = new javax.swing.JLabel();
+        lblMaSach = new javax.swing.JLabel();
+        lblMaTK = new javax.swing.JLabel();
+        lblNgayMuon = new javax.swing.JLabel();
+        lblNgayTra = new javax.swing.JLabel();
+        lblHanTra = new javax.swing.JLabel();
+        lblTrangThai = new javax.swing.JLabel();
+        lblTienPhat = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblPhieuMuon = new javax.swing.JTable();
+        txtTienPhat = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -117,8 +128,7 @@ public class PhieuMuonForm extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblPhieuMuon = new javax.swing.JTable();
+        btnTroVe = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -132,22 +142,21 @@ public class PhieuMuonForm extends javax.swing.JFrame {
         btnTraSach.setText("Trả sách");
         btnTraSach.addActionListener(this::btnTraSachActionPerformed);
 
-        btnLamMoi.setText("Làm mới");
-        btnLamMoi.addActionListener(this::btnLamMoiActionPerformed);
+        lblMaPhieuMuon.setText("Mã phiếu mượn");
 
-        jLabel1.setText("Mã phiếu mượn");
+        lblMaSach.setText("Mã sách");
 
-        jLabel2.setText("Mã sách");
+        lblMaTK.setText("Mã tài khoản");
 
-        jLabel3.setText("Mã tài khoản");
+        lblNgayMuon.setText("Ngày mượn");
 
-        jLabel4.setText("Ngày mượn");
+        lblNgayTra.setText("Ngày trả");
 
-        jLabel5.setText("Ngày trả");
+        lblHanTra.setText("Hạn trả");
 
-        jLabel6.setText("Hạn trả");
+        lblTrangThai.setText("Trạng thái");
 
-        jLabel7.setText("Trạng thái");
+        lblTienPhat.setText("Tiền phạt (VNĐ):");
 
         tblPhieuMuon.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -160,7 +169,31 @@ public class PhieuMuonForm extends javax.swing.JFrame {
                 "Mã phiếu mượn", "Mã tài khoản", "Mã sách", "Ngày mượn", "Hạn trả", "Ngày trả", "Trạng thái"
             }
         ));
+        tblPhieuMuon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblPhieuMuonMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblPhieuMuon);
+
+        txtTienPhat.addActionListener(this::txtTienPhatActionPerformed);
+
+        jLabel1.setText("Trễ một ngày phạt 5000VNĐ");
+
+        jLabel2.setText("YYYY-MM-DD");
+
+        jLabel3.setText("Auto fill");
+
+        jLabel4.setText("Auto fill");
+
+        jLabel5.setText("Auto fill");
+
+        jLabel6.setText("Auto fill");
+
+        jLabel7.setText("Auto fill");
+
+        btnTroVe.setText("BACK");
+        btnTroVe.addActionListener(this::btnTroVeActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -168,79 +201,111 @@ public class PhieuMuonForm extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 747, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtMaPM, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(jLabel6))
-                                .addGap(248, 248, 248)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtMaTK, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel4)
-                                    .addComponent(txtNgayMuon, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                                    .addComponent(jLabel5)
-                                    .addComponent(txtNgayTra))))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(txtMaPM, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtTrangThai, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtMaSach, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtHanTra, javax.swing.GroupLayout.Alignment.LEADING))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblMaPhieuMuon)
+                            .addComponent(lblHanTra)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(txtTrangThai, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                                    .addComponent(lblMaSach, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblTrangThai, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtMaSach, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtHanTra, javax.swing.GroupLayout.Alignment.LEADING))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel7))))
+                        .addGap(51, 51, 51)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTienPhat)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtTienPhat))
+                            .addComponent(txtMaTK, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(lblMaTK)
+                            .addComponent(lblNgayMuon)
+                            .addComponent(txtNgayMuon, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(lblNgayTra)
+                            .addComponent(txtNgayTra)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnTroVe)
+                                .addContainerGap())
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel4))
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addComponent(btnMuonSach, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
-                .addComponent(btnTraSach, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnLamMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 747, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnTraSach, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(11, 11, 11)
+                .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3))
+                    .addComponent(lblMaPhieuMuon)
+                    .addComponent(lblMaTK)
+                    .addComponent(btnTroVe))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtMaPM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtMaTK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtMaTK, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel4))
+                    .addComponent(lblMaSach)
+                    .addComponent(lblNgayMuon))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtMaSach, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtNgayMuon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNgayMuon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel6))
+                    .addComponent(lblNgayTra)
+                    .addComponent(lblHanTra))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtHanTra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtNgayTra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtHanTra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(txtNgayTra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4)))
                 .addGap(12, 12, 12)
-                .addComponent(jLabel7)
+                .addComponent(lblTrangThai)
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblTienPhat)
+                    .addComponent(txtTienPhat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtTrangThai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
+                .addComponent(jLabel1)
+                .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnMuonSach)
-                    .addComponent(btnTraSach)
-                    .addComponent(btnLamMoi))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                    .addComponent(btnTraSach))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -250,11 +315,58 @@ public class PhieuMuonForm extends javax.swing.JFrame {
 
     private void btnTraSachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTraSachActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnTraSachActionPerformed
+        String maPMText = txtMaPM.getText().trim();
 
-    private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnLamMoiActionPerformed
+        if (maPMText.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Vui lòng chọn phiếu mượn cần trả!");
+            return;
+        }
+
+        try {
+            int maPM = Integer.parseInt(maPMText);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn trả phiếu mượn này?",
+                "Xác nhận trả sách",
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            String sql = "{CALL sp_TraSach(?)}";
+
+            try (Connection conn = DBConnection.getConnection();
+                 CallableStatement cs = conn.prepareCall(sql)) {
+
+                cs.setInt(1, maPM);
+                cs.execute();
+            }
+
+            JOptionPane.showMessageDialog(this,
+                "Trả sách thành công!");
+
+            loadData();
+
+            txtMaPM.setText("");
+            txtMaTK.setText("");
+            txtMaSach.setText("");
+            txtNgayMuon.setText("");
+            txtHanTra.setText("");
+            txtNgayTra.setText("");
+            txtTrangThai.setText("");
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                "Mã phiếu mượn không hợp lệ!");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                "Lỗi trả sách: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnTraSachActionPerformed
 
     private void txtNgayMuonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNgayMuonActionPerformed
         // TODO add your handling code here:
@@ -341,6 +453,81 @@ public class PhieuMuonForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnMuonSachActionPerformed
 
+    private void tblPhieuMuonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPhieuMuonMouseClicked
+        // TODO add your handling code here:
+        int row = tblPhieuMuon.getSelectedRow();
+
+        if (row >= 0) {
+            txtMaPM.setText(tblPhieuMuon.getValueAt(row, 0).toString());
+            txtMaTK.setText(tblPhieuMuon.getValueAt(row, 1).toString());
+            txtMaSach.setText(tblPhieuMuon.getValueAt(row, 2).toString());
+
+            txtNgayMuon.setText(
+                tblPhieuMuon.getValueAt(row, 3).toString()
+            );
+
+            txtHanTra.setText(
+                tblPhieuMuon.getValueAt(row, 4).toString()
+            );
+
+            Object ngayTra = tblPhieuMuon.getValueAt(row, 5);
+            txtNgayTra.setText(ngayTra == null ? "" : ngayTra.toString());
+
+            txtTrangThai.setText(
+                tblPhieuMuon.getValueAt(row, 6).toString()
+            );
+            
+            String trangThai = tblPhieuMuon.getValueAt(row, 6).toString();
+
+            if (trangThai.equalsIgnoreCase("DA_TRA")) {
+                int maPM = Integer.parseInt(
+                    tblPhieuMuon.getValueAt(row, 0).toString()
+                );
+
+                double tienPhat = tinhTienPhat(maPM);
+
+                txtTienPhat.setText(
+                    String.format("%,.0f", tienPhat)
+                );
+            } else {
+                txtTienPhat.setText("Chưa trả sách");
+            }
+        }
+    }//GEN-LAST:event_tblPhieuMuonMouseClicked
+
+    private void txtTienPhatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTienPhatActionPerformed
+        // TODO add your handling code here:
+        txtTienPhat.setEditable(false);
+    }//GEN-LAST:event_txtTienPhatActionPerformed
+
+    private void btnTroVeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTroVeActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_btnTroVeActionPerformed
+    
+    private double tinhTienPhat(int maPM) {
+        String sql = "SELECT fn_TinhTienPhat(HanTra, NgayTra) AS TienPhat "
+                   + "FROM PhieuMuon WHERE MaPM = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+           ps.setInt(1, maPM);
+
+           try (ResultSet rs = ps.executeQuery()) {
+               if (rs.next()) {
+                   return rs.getDouble("TienPhat");
+               }
+           }
+
+       } catch (SQLException e) {
+           JOptionPane.showMessageDialog(this,
+               "Lỗi tính tiền phạt: " + e.getMessage());
+       }
+
+       return 0;
+   }
+    
     /**
      * @param args the command line arguments
      */
@@ -367,9 +554,9 @@ public class PhieuMuonForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnLamMoi;
     private javax.swing.JButton btnMuonSach;
     private javax.swing.JButton btnTraSach;
+    private javax.swing.JButton btnTroVe;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -378,6 +565,14 @@ public class PhieuMuonForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblHanTra;
+    private javax.swing.JLabel lblMaPhieuMuon;
+    private javax.swing.JLabel lblMaSach;
+    private javax.swing.JLabel lblMaTK;
+    private javax.swing.JLabel lblNgayMuon;
+    private javax.swing.JLabel lblNgayTra;
+    private javax.swing.JLabel lblTienPhat;
+    private javax.swing.JLabel lblTrangThai;
     private javax.swing.JTable tblPhieuMuon;
     private javax.swing.JTextField txtHanTra;
     private javax.swing.JTextField txtMaPM;
@@ -385,6 +580,7 @@ public class PhieuMuonForm extends javax.swing.JFrame {
     private javax.swing.JTextField txtMaTK;
     private javax.swing.JTextField txtNgayMuon;
     private javax.swing.JTextField txtNgayTra;
+    private javax.swing.JTextField txtTienPhat;
     private javax.swing.JTextField txtTrangThai;
     // End of variables declaration//GEN-END:variables
 }

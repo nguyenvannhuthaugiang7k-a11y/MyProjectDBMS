@@ -64,6 +64,7 @@ public class MainForm extends javax.swing.JFrame {
         btnQuanLySach.addActionListener(this::btnQuanLySachActionPerformed);
 
         btnQuanLyTaiKhoan.setText("QUẢN LÝ TÀI KHOẢN");
+        btnQuanLyTaiKhoan.addActionListener(this::btnQuanLyTaiKhoanActionPerformed);
 
         btnQuanLyPhieuMuon.setText("QUẢN LÝ PHIẾU MƯỢN");
         btnQuanLyPhieuMuon.addActionListener(this::btnQuanLyPhieuMuonActionPerformed);
@@ -137,6 +138,13 @@ public class MainForm extends javax.swing.JFrame {
         form.setLocationRelativeTo(this);
         form.setVisible(true);
     }//GEN-LAST:event_btnQuanLyPhieuMuonActionPerformed
+
+    private void btnQuanLyTaiKhoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuanLyTaiKhoanActionPerformed
+        // TODO add your handling code here:
+        TaiKhoanForm form = new TaiKhoanForm();
+        form.setLocationRelativeTo(this);
+        form.setVisible(true);
+    }//GEN-LAST:event_btnQuanLyTaiKhoanActionPerformed
 
     /**
      * @param args the command line arguments
