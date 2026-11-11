@@ -1,18 +1,19 @@
-# Library Management System (ProjectDBMS)
+# Library Management System
 
-A Java Swing application connected to MySQL for basic library management. The repository contains a NetBeans Java project and separate SQL scripts for borrowing/returning books, stock triggers, and overdue-fine calculation.
+A desktop library-management application built with **Java Swing**, **NetBeans**, and **MySQL**. The application includes account login, role-based navigation, book management, account lookup, borrowing and returning books, inventory updates, and overdue-fine calculation.
 
 ## Technology Stack
 
-- Java Swing (NetBeans project)
-- MySQL
-- JDBC using MySQL Connector/J
-- Stored procedures, functions, and triggers
+- Java Swing (NetBeans project; project properties specify Java source/target level 26)
+- MySQL database: `QuanLyThuVien`
+- JDBC with MySQL Connector/J
+- MySQL stored procedures, function, triggers, and transactions
 
-## Repository Layout
+## Project Structure
 
 ```text
 MyProjectDBMS/
+├── README.md
 └── ProjectDBMS/
     ├── Function_tinhtienphat.sql
     ├── Procedure_muonsach.sql
@@ -29,33 +30,58 @@ MyProjectDBMS/
                 ├── LoginForm.java
                 ├── MainForm.java
                 ├── SachForm.java
+                ├── TaiKhoanForm.java
                 └── PhieuMuonForm.java
 ```
 
+The repository also contains NetBeans-generated build output and project configuration. Maintain the Java source under `src/`.
+
+## Application Features
+
+### Authentication and roles
+- Login checks the username and password against `TaiKhoan`.
+- The main screen displays the logged-in user's name and role.
+- The application distinguishes `ADMIN` and `DOCGIA`.
+- Admin users can access book and account-management screens.
+- Readers are restricted to their own borrowing slips; their account ID is filled automatically and made read-only in the borrowing form.
+
+### Book management
+The `SachForm` screen supports listing, adding, editing, deleting, searching, and refreshing book records. It displays total quantity and available quantity.
+
+### Account management
+The `TaiKhoanForm` screen displays and searches account records. The visible account fields are `MaTK`, `TenTK`, `HoTen`, and `VaiTro`.
+
+### Borrowing and returning
+The `PhieuMuonForm` screen supports:
+- Creating borrowing slips through `sp_MuonSach`
+- Viewing all slips as an admin and only personal slips as a reader
+- Selecting a slip and returning it through `sp_TraSach`
+- Displaying overdue fines through `fn_TinhTienPhat`
+- Displaying borrowing date, due date, return date, and status
+
+The form expects due dates in `yyyy-MM-dd` format and asks for confirmation before returning a selected slip.
+
 ## Database
 
-The Java connection and SQL scripts use the database name `QuanLyThuVien`.
+The Java connection and supplied SQL routines use the database name **`QuanLyThuVien`**.
 
-> **Important:** This repository currently contains SQL scripts for routines and triggers, but does not include a complete database initialization script (such as `CREATE DATABASE`, all `CREATE TABLE` statements, and seed data). Create/import the schema and tables before running the application. The table and column names below are the ones referenced by the checked-in Java and SQL files; they are not a replacement for the complete schema definition.
+### Tables and fields referenced by the source
 
-### Tables and fields referenced by the project
+| Table | Fields referenced |
+|---|---|
+| `TaiKhoan` | `MaTK`, `TenTK`, `MatKhau`, `HoTen`, `VaiTro` |
+| `Sach` | `MaSach`, `TenSach`, `TacGia`, `TheLoai`, `SoLuong`, `SoLuongCon` |
+| `PhieuMuon` | `MaPM`, `MaTK`, `MaSach`, `NgayMuon`, `HanTra`, `NgayTra`, `TrangThai` |
 
-- `TaiKhoan`: `MaTK`, `TenTK`, `MatKhau`, `HoTen`, `VaiTro`
-- `Sach`: `MaSach`, `TenSach`, `TacGia`, `TheLoai`, `SoLuong`, `SoLuongCon`
-- `PhieuMuon`: `MaPM`, `MaTK`, `MaSach`, `NgayMuon`, `HanTra`, `NgayTra`, `TrangThai`
-
-The SQL and application code indicate that a borrowing record refers to an account and a book. Verify the actual primary keys, foreign keys, data types, defaults, and constraints against your database schema.
+The application logic associates each borrowing slip with an account and a book. **The current repository does not include a complete database initialization script** containing all `CREATE TABLE` statements, primary/foreign-key definitions, data types, constraints, and sample records. The table/column list above documents what the checked-in Java and SQL code references; it is not a complete physical schema.
 
 ### Borrowing status values
-
-The stored procedures and triggers use these status strings:
-
 - `DANG_MUON` — currently borrowed
 - `DA_TRA` — returned
 
-## Database Objects
+## Stored Procedures, Function, and Triggers
 
-The SQL scripts in `ProjectDBMS/` define the following objects. Run each script in MySQL after the `QuanLyThuVien` schema and required tables have been created.
+Run the SQL scripts after creating the `QuanLyThuVien` database and its required tables.
 
 ### 1. Stored procedure: `sp_MuonSach`
 
@@ -66,65 +92,70 @@ Parameters:
 - `p_MaSach INT` — book ID
 - `p_HanTra DATE` — due date
 
-It checks that the account and book can be found, inserts a row into `PhieuMuon` with today's date and status `DANG_MUON`, and commits the transaction. On SQL exception, it rolls back and rethrows the error. The stock triggers run when the borrowing row is inserted.
-
-Example call:
+The procedure starts a transaction, checks that the account and book exist, inserts a row into `PhieuMuon` with `NgayMuon = CURDATE()` and status `DANG_MUON`, then commits. Its SQL exception handler rolls back and rethrows the error. The inventory triggers run as a result of the insert.
 
 ```sql
 CALL sp_MuonSach(1, 1, '2026-12-01');
 ```
 
-Replace the sample IDs and date with values that exist in your database.
+Use IDs that exist in your own database.
 
 ### 2. Stored procedure: `sp_TraSach`
 
 File: `Procedure_trasach.sql`
 
-Parameter: `p_MaPM INT` — borrowing slip ID.
+Parameter: `p_MaPM INT` — borrowing-slip ID.
 
-It locks the borrowing row using `FOR UPDATE`, requires the current status to be `DANG_MUON`, then sets `NgayTra = CURDATE()` and `TrangThai = 'DA_TRA'`. Invalid/already-returned slips raise SQLSTATE `45000`. SQL exceptions trigger a rollback.
-
-Example call:
+The procedure starts a transaction, locks and reads the selected slip using `FOR UPDATE`, and requires its status to be `DANG_MUON`. It then sets `NgayTra = CURDATE()` and `TrangThai = 'DA_TRA'` before committing. Invalid or already-returned slips raise SQLSTATE `45000`. SQL exceptions cause a rollback and are rethrown.
 
 ```sql
 CALL sp_TraSach(1);
 ```
 
+The Java return button calls this procedure using JDBC `CallableStatement`.
+
 ### 3. Function: `fn_TinhTienPhat`
 
 File: `Function_tinhtienphat.sql`
 
-Inputs: `p_HanTra DATE`, `p_NgayTra DATE`.
-
-The function calculates overdue days as the non-negative difference between the return date (or today when the return date is NULL) and the due date. The fine is **5,000 per overdue day**.
+Inputs: `p_HanTra DATE` and `p_NgayTra DATE`. If the return date is NULL, the function uses `CURDATE()`. It calculates non-negative overdue days and charges **5,000 VND per overdue day**.
 
 ```sql
 SELECT fn_TinhTienPhat('2026-11-01', '2026-11-04') AS TienPhat;
 ```
 
-For the example above, the result is `15000.00`. The function uses `CURDATE()` when `p_NgayTra` is NULL.
+The example result is `15000.00`. The borrowing-slip screen calls this function to display the fine for the selected record.
 
 ### 4. Triggers
 
 | Trigger | Event | Behavior |
 |---|---|---|
-| `trg_KiemTraSachTruocKhiMuon` | `BEFORE INSERT ON PhieuMuon` | Rejects a borrowing insert when the book cannot be found or `SoLuongCon <= 0`. |
-| `trg_GiamSoLuongSauKhiMuon` | `AFTER INSERT ON PhieuMuon` | Decreases `Sach.SoLuongCon` by one for the borrowed book. |
-| `trg_TangSoLuongSauKhiTra` | `AFTER UPDATE ON PhieuMuon` | Increases `Sach.SoLuongCon` by one when status changes from `DANG_MUON` to `DA_TRA`. |
+| `trg_KiemTraSachTruocKhiMuon` | `BEFORE INSERT ON PhieuMuon` | Rejects borrowing if the book is missing or `SoLuongCon <= 0`. |
+| `trg_GiamSoLuongSauKhiMuon` | `AFTER INSERT ON PhieuMuon` | Decreases `Sach.SoLuongCon` by one. |
+| `trg_TangSoLuongSauKhiTra` | `AFTER UPDATE ON PhieuMuon` | Increases `Sach.SoLuongCon` when status changes from `DANG_MUON` to `DA_TRA`. |
 
-These triggers are defined in:
+SQL files:
 - `Trigger_ktrSachtrckhimuon.sql`
 - `Trigger_ktrGiamsoluongsaukhimuon.sql`
 - `Trigger_TangSLsaukhitra.sql`
 
-## Configure and Run
+## Setup and Run
+
+### Prerequisites
+- MySQL Server and MySQL Workbench (or another MySQL client)
+- NetBeans IDE
+- A JDK compatible with the project's configured Java level
+- MySQL Connector/J
 
 ### 1. Prepare MySQL
+1. Start MySQL Server.
+2. Create/import the `QuanLyThuVien` database, including the tables and required data.
+3. Execute the three trigger scripts, two procedure scripts, and function script from `ProjectDBMS/`.
+4. Ensure at least one valid account exists in `TaiKhoan`.
 
-1. Start your MySQL server.
-2. Create or import the `QuanLyThuVien` database, including the required tables and data. The complete table-creation and seed-data scripts are not present in this repository.
-3. In MySQL Workbench or another SQL client, execute the three trigger scripts, both procedure scripts, and the function script from `ProjectDBMS/`.
-4. Confirm the objects exist:
+The repository does not currently provide the complete schema or seed-data SQL, so these must be supplied separately before the application can run.
+
+Verify the routines and triggers:
 
 ```sql
 SHOW PROCEDURE STATUS WHERE Db = 'QuanLyThuVien';
@@ -132,11 +163,11 @@ SHOW FUNCTION STATUS WHERE Db = 'QuanLyThuVien';
 SHOW TRIGGERS FROM QuanLyThuVien;
 ```
 
-If re-running an object script, check whether that object already exists; the current scripts use `CREATE` rather than `CREATE OR REPLACE` or a preceding `DROP`.
+The scripts use `CREATE`; if an object already exists, remove or rename it before executing the corresponding script again.
 
-### 2. Configure the JDBC connection
+### 2. Configure JDBC
 
-The connection settings are in `JavaApplication1/src/database/DBConnection.java`:
+Connection settings are in `ProjectDBMS/JavaApplication1/src/database/DBConnection.java`:
 
 ```java
 private static final String URL =
@@ -147,36 +178,20 @@ private static final String USER = "root";
 private static final String PASSWORD = "12345";
 ```
 
-Update the host, port, database name, username, and password to match your local MySQL installation. **Do not use a real or privileged password in a public repository.** Prefer environment variables or a local configuration file excluded from version control.
+Change the host, port, database name, username, and password for your local MySQL setup. The project loads the driver `com.mysql.cj.jdbc.Driver`.
 
-The project uses the MySQL JDBC driver class `com.mysql.cj.jdbc.Driver`. The NetBeans project properties reference a local Connector/J JAR path on the original developer's computer; that absolute path will not work on other computers automatically. Add the MySQL Connector/J JAR to the project libraries/classpath on your machine.
+Add MySQL Connector/J to the NetBeans project libraries/classpath. The current project properties refer to a Connector/J JAR at an absolute path on the original developer's computer; update that path on another machine.
 
-### 3. Open and run in NetBeans
+> **Security:** The source currently contains a hard-coded database password. Replace it and do not publish real credentials. Prefer environment variables or a local configuration file excluded from version control.
 
-1. Open `ProjectDBMS/JavaApplication1` as a NetBeans project.
-2. Ensure the JDK and MySQL Connector/J dependency are configured.
-3. Update `DBConnection.java` with your local database credentials.
+### 3. Run in NetBeans
+1. Open `ProjectDBMS/JavaApplication1` in NetBeans.
+2. Configure the JDK and MySQL Connector/J library.
+3. Update the connection settings in `DBConnection.java`.
 4. Run `database.TestConnection` to test the connection.
-5. Run `view.LoginForm` (the configured main class) to open the application.
+5. Run `view.LoginForm` to start the application.
 
-A valid account must already exist in `TaiKhoan`. The login query checks `TenTK` and `MatKhau` and reads `MaTK`, `HoTen`, and `VaiTro`. The application code expects role strings such as `ADMIN` and `DOCGIA`.
-
-## Application Features Visible in the Source
-
-- Login using a row from `TaiKhoan`
-- Book management form (`SachForm`)
-- Borrowing-slip form (`PhieuMuonForm`)
-- Admin-specific visibility for book/account management controls
-- Stored-procedure call from Java for borrowing books
-
-The return-book button handler in the checked-in `PhieuMuonForm.java` is currently a TODO placeholder; the SQL procedure `sp_TraSach` exists, but the UI handler does not yet call it in the checked-in source.
-
-## Security and Implementation Notes
-
-- The checked-in connection class contains a hard-coded database password. Change it and avoid committing credentials.
-- The login query compares the stored password directly. For a real deployment, store salted password hashes and verify them in application code.
-- Review transaction and trigger behavior against the final schema, especially stock quantity constraints and foreign keys.
-- Keep the full schema and sample data in a separate SQL initialization script so a new developer can set up the database consistently.
+Create valid test accounts in `TaiKhoan` with role values expected by the application, such as `ADMIN` and `DOCGIA`.
 
 ## SQL Script Index
 
@@ -187,6 +202,11 @@ The return-book button handler in the checked-in `PhieuMuonForm.java` is current
 | `Function_tinhtienphat.sql` | Creates `fn_TinhTienPhat` |
 | `Trigger_ktrSachtrckhimuon.sql` | Checks stock before borrowing |
 | `Trigger_ktrGiamsoluongsaukhimuon.sql` | Decreases stock after borrowing |
-| `Trigger_TangSLsaukhitra.sql` | Increases stock after return |
+| `Trigger_TangSLsaukhitra.sql` | Restores stock after returning |
 
----
+## Notes and Limitations
+
+- A full database schema and sample-data script are not included in the current repository.
+- The connection class hard-codes credentials; change this before sharing or deploying the application.
+- The login code compares the supplied password directly with `TaiKhoan.MatKhau`. For production use, store salted password hashes and verify them securely.
+- Confirm the final schema's keys, constraints, and data types before deployment.
